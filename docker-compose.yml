@@ -1,0 +1,19 @@
+services:
+  db:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_USER: rumbo
+      POSTGRES_PASSWORD: rumbo
+      POSTGRES_DB: rumbo
+    ports:
+      - "5432:5432"
+    volumes:
+      - rumbo_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rumbo -d rumbo"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  rumbo_pgdata:

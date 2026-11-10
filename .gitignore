@@ -1,0 +1,33 @@
+.opencode/
+openspec/
+
+# Entregables locales (PDF, DOCX, capturas y Power BI)
+docs/
+powerbi/
+
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+
+# Entorno
+.env
+.env.*
+!.env.example
+
+# Node / frontend
+node_modules/
+web/node_modules/
+web/dist/
+
+# Sistema
+.DS_Store
+
+# Documentacion
+docs/
+powerbi/
