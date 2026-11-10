@@ -107,7 +107,7 @@ SERVICES: list[dict[str, Any]] = [
         "slug": "chatbot",
         "name": "Chatbot de viajes",
         "kind": "chatbot",
-        "model": "llama-3.1-8b-instant",
+        "model": "openai/gpt-oss-20b",
         "system_prompt": (
             "Eres un asistente turístico. Responde solo con información del "
             "catálogo recuperado y cita las fuentes."
@@ -117,7 +117,7 @@ SERVICES: list[dict[str, Any]] = [
         "slug": "itinerary-planner",
         "name": "Planificador de itinerarios",
         "kind": "agent",
-        "model": "llama-3.1-8b-instant",
+        "model": "openai/gpt-oss-20b",
         "system_prompt": (
             "Construye itinerarios combinando el catálogo con clima y distancias. "
             "Explica los pasos y las fuentes."
@@ -127,7 +127,7 @@ SERVICES: list[dict[str, Any]] = [
         "slug": "trip-adjuster",
         "name": "Ajuste de viaje",
         "kind": "agent",
-        "model": "llama-3.1-8b-instant",
+        "model": "openai/gpt-oss-20b",
         "system_prompt": (
             "Ajusta un itinerario ante cambios de clima o presupuesto, indicando "
             "qué actividades reemplazaste."

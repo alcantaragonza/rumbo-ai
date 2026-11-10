@@ -22,7 +22,7 @@ class AiService(Base):
         Boolean, default=True, server_default="true"
     )
     model: Mapped[str] = mapped_column(
-        String(120), default="llama-3.1-8b-instant", server_default="llama-3.1-8b-instant"
+        String(120), default="openai/gpt-oss-20b", server_default="openai/gpt-oss-20b"
     )
     system_prompt: Mapped[str] = mapped_column(Text, default="", server_default="")
     config: Mapped[dict[str, Any]] = mapped_column(
