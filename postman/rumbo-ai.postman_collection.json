@@ -1,0 +1,232 @@
+{
+  "info": {
+    "name": "Rumbo AI",
+    "description": "Flujos principales: login, token externo, catálogo, chat con RAG, agentes, historial y consumo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Salud",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": "{{baseUrl}}/health"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('health 200', () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Login admin",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"email\": \"{{adminEmail}}\",\n  \"password\": \"{{adminPassword}}\"\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/auth/login"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('login 200', () => pm.response.to.have.status(200));",
+              "pm.test('rol admin', () => pm.expect(pm.response.json().role).to.eql('admin'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Crear token de escritura",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"postman\",\n  \"scope\": \"write\"\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/auth/tokens"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('token 201', () => pm.response.to.have.status(201));",
+              "const body = pm.response.json();",
+              "pm.expect(body.token).to.include('rumbo_');",
+              "pm.environment.set('apiToken', body.token);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Servicios de IA",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{apiToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/services"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('servicios 200', () => pm.response.to.have.status(200));",
+              "pm.test('hay servicios', () => pm.expect(pm.response.json().length).to.be.above(0));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Chat con RAG",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{apiToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"message\": \"Quiero visitar Antigua Guatemala\",\n  \"service_slug\": \"chatbot\"\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/chat"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('chat 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('tiene fuentes', () => pm.expect(body.sources.length).to.be.above(0));",
+              "pm.environment.set('conversationId', body.conversation_id);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Itinerario",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "Authorization",
+            "value": "Bearer {{apiToken}}"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"destination_query\": \"Antigua\",\n  \"days\": 2,\n  \"travelers\": 1,\n  \"origin_latitude\": 14.6,\n  \"origin_longitude\": -90.7\n}"
+        },
+        "url": "{{baseUrl}}/api/v1/agents/itinerary"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('itinerario 200', () => pm.response.to.have.status(200));",
+              "const body = pm.response.json();",
+              "pm.test('tiene días', () => pm.expect(body.itinerary.length).to.be.above(0));",
+              "pm.test('tiene pasos', () => pm.expect(body.steps.length).to.be.above(0));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Historial",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{apiToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/history/conversations"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('historial 200', () => pm.response.to.have.status(200));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    },
+    {
+      "name": "8. Consumo",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{apiToken}}"
+          }
+        ],
+        "url": "{{baseUrl}}/api/v1/usage"
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('consumo 200', () => pm.response.to.have.status(200));",
+              "pm.test('tiene totales', () => pm.expect(pm.response.json()).to.have.property('tokens_total'));"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ]
+    }
+  ]
+}
