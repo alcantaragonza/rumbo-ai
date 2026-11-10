@@ -24,8 +24,8 @@ Opcional para respuestas reales del LLM:
 flyctl secrets set GROQ_API_KEY='...' -a rumbo-ai
 ```
 
-Con `GROQ_API_KEY` configurada, cambia `ENV` a `production` en `fly.toml` (o como secreto) para
-usar cookies `Secure` y el cliente real.
+La configuración versionada usa `ENV=production`, cookies `Secure` y el modelo
+`openai/gpt-oss-20b`. `GROQ_API_KEY` debe existir como secreto de Fly.
 
 ## Despliegue manual
 

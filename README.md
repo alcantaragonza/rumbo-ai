@@ -209,8 +209,8 @@ incluye esa aplicación, por lo que se entregan la consulta y el procedimiento r
 
 El despliegue automático está en `.github/workflows/ci-cd.yml`: ejecuta lint, tipos, build, migraciones
 y pruebas, y solo despliega en `main` si todo pasa. Los secretos y el rollback se documentan en
-`DEPLOY.md`. La app está en `ENV=development` para la demo (cliente LLM simulado); configura
-`GROQ_API_KEY` y `ENV=production` para respuestas reales.
+`DEPLOY.md`. La app corre con `ENV=production`, `GROQ_API_KEY` configurada como secreto de Fly y el
+modelo `openai/gpt-oss-20b`.
 
 ## Pruebas y verificación
 
