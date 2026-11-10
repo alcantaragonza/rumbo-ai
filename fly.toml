@@ -1,0 +1,32 @@
+app = "rumbo-ai"
+primary_region = "ord"
+
+[build]
+
+[env]
+  # Demo sin GROQ_API_KEY: usa el cliente LLM simulado. Para respuestas reales,
+  # configura GROQ_API_KEY como secreto y cambia ENV a production.
+  ENV = "development"
+
+[http_service]
+  internal_port = 8000
+  force_https = true
+  auto_stop_machines = "stop"
+  auto_start_machines = true
+  min_machines_running = 0
+  processes = ["app"]
+
+  [[http_service.checks]]
+    grace_period = "10s"
+    interval = "30s"
+    method = "GET"
+    path = "/health"
+    timeout = "5s"
+
+[[vm]]
+  memory = "512mb"
+  cpu_kind = "shared"
+  cpus = 1
+
+[deploy]
+  release_command = ".venv/bin/alembic upgrade head"

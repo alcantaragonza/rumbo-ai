@@ -1,0 +1,78 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_USER: rumbo
+          POSTGRES_PASSWORD: rumbo
+          POSTGRES_DB: rumbo
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U rumbo -d rumbo"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Instalar dependencias Python
+        run: uv sync --frozen
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Tipos
+        run: uv run mypy app scripts
+
+      - name: Frontend (typecheck + build)
+        working-directory: web
+        run: npm ci && npm run build
+
+      - name: Migraciones
+        env:
+          DATABASE_URL: postgresql+psycopg://rumbo:rumbo@localhost:5432/rumbo
+          SESSION_SECRET: ci-session-secret-0123456789
+          ENV: test
+        run: uv run alembic upgrade head
+
+      - name: Pruebas
+        env:
+          DATABASE_URL: postgresql+psycopg://rumbo:rumbo@localhost:5432/rumbo_test
+          SESSION_SECRET: ci-session-secret-0123456789
+          ENV: test
+        run: uv run pytest -q
+
+  deploy:
+    needs: quality
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    concurrency: deploy-production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+
+      - name: Desplegar en Fly.io
+        run: flyctl deploy --remote-only
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
